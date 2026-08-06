@@ -3,7 +3,7 @@ import Container from '@mui/material/Container'
 import Box from '@mui/material/Box';
 import { LineChart } from '@mui/x-charts/LineChart';
 import Button from '@mui/material/Button';
-import { Backdrop, CircularProgress, FormControl, InputLabel, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow, TextField} from '@mui/material';
+import { /* Backdrop, CircularProgress, */ FormControl, InputLabel, MenuItem, Select, /* Table, TableBody, TableCell, TableHead, TableRow, */ TextField} from '@mui/material';
 
 interface UserData{
   name : string,
@@ -11,10 +11,10 @@ interface UserData{
   variant: number
 }
 
-interface ApiData{
+/* interface ApiData{
   haut : any[],
   haettu : boolean
-}
+} */
 
 function App() {
   const [u1, setU1] = useState<string>("");
@@ -25,19 +25,19 @@ function App() {
   const [dataPisteet2, setDataPisteet2] = useState<any>([]);
   const [xLabels, setXLabels] = useState<any>([])
   const [aikavali, setAikavali] = useState<any>([])
-  const [apiData, setApiData]= useState<ApiData>({
+/*   const [apiData, setApiData]= useState<ApiData>({
     haut: [{}],
     haettu: true,
-  })
-  const nowUnix = new Date().getTime();
+  }) */
+/*   const nowUnix = new Date().getTime();
   const nowDay = new Date().getDay();
   const nowYear = new Date().getFullYear();
-  const msDay = 86400000;
+  const msDay = 86400000; */
 
   const [haettu, setHaettu] = useState<number>(0);
   const [haettu2, setHaettu2] = useState<number>(0);
   const [vertailu, setVertailu] = useState<boolean>(false);
-  const [aikajarjestys, setAikajarjestys] = useState<boolean>(false);
+/*   const [aikajarjestys, setAikajarjestys] = useState<boolean>(false); */
   const [styles, setStyles] = useState<any>([
     "background-color : rgb(67, 67, 67) !important",
     "background-color : rgb(31, 31, 31) !important",
@@ -314,14 +314,14 @@ function App() {
     throw new Error
   }
   } */
-  const suodata=(a : any, b : any)=>{
+/*   const suodata=(a : any, b : any)=>{
     if(aikajarjestys){
       return b.aikaleima - a.aikaleima
     }
     else{
       return Math.max(b.maxRating1, b.maxRating2) - Math.max(a.maxRating1, a.maxRating2)
     }
-  }
+  } */
   useEffect(()=>{
     luoOtsikot();
     let styles2 = [
@@ -451,9 +451,10 @@ function App() {
             </Container>
         </Container>
     }
-    {/* nakyma == 2 */ false &&
+    {nakyma == 2  &&
       <Container className='big-box' sx={{overflow:"scroll"}}>
-         <Button onClick={()=>{setAikajarjestys(!aikajarjestys)}}>
+
+{/*          <Button onClick={()=>{setAikajarjestys(!aikajarjestys)}}>
           {aikajarjestys ? <>Suodata ELO:n mukaan</>:<>Suodata hakuajan mukaan</>}
          </Button>
          {!apiData.haettu && <Backdrop open><CircularProgress sx={{scale:"3"}}/></Backdrop>}
@@ -505,7 +506,7 @@ function App() {
                           {` klo ${new Date(haku.aikaleima*1000).getHours()}.${String(new Date(haku.aikaleima*1000).getMinutes()).padStart(2, "0")}`}
                           </TableCell>
                         <TableCell>
-                          <Button /* onClick={()=>{poistaRivi(haku.id)}} */ className='tablebtn'>
+                          <Button onClick={()=>{poistaRivi(haku.id)}} className='tablebtn'>
                             Poista
                           </Button>
                         </TableCell>
@@ -515,7 +516,8 @@ function App() {
                 }
               })}
           </TableBody>
-        </Table>
+        </Table> */}
+        
       </Container>
     }
 
