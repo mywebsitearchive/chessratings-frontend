@@ -50,6 +50,34 @@ function App() {
   const color : string = '#ff0000'
   const connectNulls : boolean = true;
 
+  const createList=(points:any)=>{
+    if(points.length > 0){
+        let now = new Date()
+        let currentMonth = (now.getFullYear()-2010)*12 + now.getMonth()
+        let ratingArray = [];
+        for(let i = 0; i < points.length; i++){
+            let timestamp = (points[i][0]-2010)*12+points[i][1]
+            let rating = points[i][3];
+            if(ratingArray[timestamp] == undefined || ratingArray[timestamp] < rating){
+                ratingArray[timestamp] = rating
+            }
+        }
+        for(let i = 0; i < currentMonth; i++){
+            if(ratingArray[i] == undefined){
+                ratingArray[i] = null
+            }
+        }
+        return ratingArray;
+    }
+    return [];
+}
+  const findVariant=(data:any)=>{
+      let variants = []
+      for(let i = 0; i < 14; i++){
+          variants[i] = data[i].points.length
+      }
+      return variants.indexOf(Math.max(...variants))
+  }
   const vaihdaNakyma=(nakyma : number)=>{
     if(nakyma == 1){
       if(typeof u1Data.data != "undefined" && JSON.stringify(u1Data.data) != "[]"){
@@ -103,18 +131,64 @@ function App() {
     setXLabels(arr.slice(aikavali[0], aikavali[1]))
   }
   const apiKutsu=async(nimi : string, variant : string)=>{
-    try{
-      const yhteys = await fetch(`http://localhost:3000/api/ratings?username=${nimi}&variant=${variant}`, {method:"GET"});
-      if(yhteys.status === 200){
-        return await yhteys.json()
+    if(nimi.length > 0){
+      const yhteys = await fetch(`https://lichess.org/api/user/${nimi}/rating-history`, {method : "GET"});
+      try{
+        if(yhteys.status === 200){
+          let variantNumber : number;
+          switch (variant) {
+              case ("UltraBullet"):	
+                  variantNumber= 0; break;
+              case ("Bullet"):	
+                  variantNumber= 1; break;
+              case ("Blitz"):	
+                  variantNumber= 2; break;
+              case ("Rapid"):	
+                  variantNumber= 3; break;
+              case ("Classical"):	
+                  variantNumber= 4; break;
+              case ("Correspondence"):	
+                  variantNumber= 5; break;
+              case ("Crazyhouse"):	
+                  variantNumber= 6; break;
+              case ("Chess960"):	
+                  variantNumber= 7; break;
+              case ("King of the Hill"):	
+                  variantNumber= 8; break;
+              case ("Three-check"):	
+                  variantNumber= 9; break;
+              case ("Antichess"):	
+                  variantNumber= 10; break;
+              case ("Atomic"):	
+                  variantNumber= 11; break;
+              case ("Horde"):	
+                  variantNumber= 12; break;
+              case ("Racing Kings"):	
+                  variantNumber= 13; break;
+              case ("Puzzles"):	
+                  variantNumber= 14; break;
+              default:	
+                  variantNumber= -1; break;
+          }
+          if(variantNumber == -1){
+              let fullData : any = await yhteys.json();
+              let list = createList((fullData)[findVariant(fullData)].points)
+              let variantNum : number = findVariant(fullData)
+              return {name:nimi, data:list, variant:variantNum}
+          }
+          else{
+              let data = createList((await yhteys.json())[variantNumber].points)
+              return {name:nimi, data:data, variant:variantNumber}
+          }
+        }
+        else {
+          alert("Virhe:" + yhteys.status)
+        }}
+      catch(e:any){
+        alert("Odottamaton virhe.")
       }
-      else {
-        alert("Virhe:" + yhteys.status)
-      }}
-    catch(e:any){
-      alert("Odottamaton virhe.")
     }
-    return []
+    return {name:nimi, data:[], variant:-1}
   }
   const haeTiedot=async()=>{
     setU1Data(await apiKutsu(u1, variant))
@@ -189,7 +263,7 @@ function App() {
       }
       return newArr.length;
   }
-  const paivitaHistoria=async()=>{
+/*   const paivitaHistoria=async()=>{
     try{
       if(u1Data.data.length > 0){
         await fetch("http://localhost:3000/api/history", {
@@ -210,7 +284,7 @@ function App() {
       }
     }catch(e:any){
     throw new Error
-  }}
+  }} *//* 
   const haeHistoria=async()=>{
     setApiData({
       ...apiData,
@@ -226,7 +300,7 @@ function App() {
     }catch(e:any){
     throw new Error
   }
-  }
+  } *//* 
   const poistaRivi=async(x:number)=>{
     setHaettu2(haettu2+1)
     try{
@@ -239,7 +313,7 @@ function App() {
     }catch(e:any){
     throw new Error
   }
-  }
+  } */
   const suodata=(a : any, b : any)=>{
     if(aikajarjestys){
       return b.aikaleima - a.aikaleima
@@ -261,19 +335,14 @@ function App() {
 
   useEffect(()=>{
     if(u1.length > 0){vaihdaNakyma(1)}
-    paivitaHistoria()
   }, [haettu])
-
-  useEffect(()=>{
-    haeHistoria()
-  }, [haettu2])
 
   return (
     <>
     <Container id='navi'>
       <Button onClick={()=>vaihdaNakyma(0)} sx={styles[0]} className='navibtn'>Haku</Button>
       <Button onClick={()=>vaihdaNakyma(1)} sx={styles[1]} className='navibtn'>Taulukko</Button>
-      <Button onClick={()=>vaihdaNakyma(2)} sx={styles[2]} className='navibtn'>Historia</Button>
+      {/* <Button onClick={()=>vaihdaNakyma(2)} sx={styles[2]} className='navibtn'>Historia</Button> */}
     </Container>
     {nakyma == 0 &&
       <Container className='big-box'>
@@ -382,7 +451,7 @@ function App() {
             </Container>
         </Container>
     }
-    {nakyma == 2 &&
+    {/* nakyma == 2 */ false &&
       <Container className='big-box' sx={{overflow:"scroll"}}>
          <Button onClick={()=>{setAikajarjestys(!aikajarjestys)}}>
           {aikajarjestys ? <>Suodata ELO:n mukaan</>:<>Suodata hakuajan mukaan</>}
@@ -436,7 +505,7 @@ function App() {
                           {` klo ${new Date(haku.aikaleima*1000).getHours()}.${String(new Date(haku.aikaleima*1000).getMinutes()).padStart(2, "0")}`}
                           </TableCell>
                         <TableCell>
-                          <Button onClick={()=>{poistaRivi(haku.id)}} className='tablebtn'>
+                          <Button /* onClick={()=>{poistaRivi(haku.id)}} */ className='tablebtn'>
                             Poista
                           </Button>
                         </TableCell>
