@@ -1,35 +1,35 @@
 body{
   background-color: rgb(0, 0, 0);
-  width: 1200px;
+  width: 100%;
   color: white;
   margin: auto;
 }
 .big-box{
   background-color: rgb(67, 67, 67);
-  height: 500px;
+  height: 40%;
   float: left;
-  padding-top: 30px;
+  padding-top: 5%;
+  padding-bottom: 5%;
 }
 .chart{
-  margin-top: 30px;
   background-color: rgb(233, 233, 233);
-  width: 1000px !important;
+  width: 80% !important;
   height: 300px !important;
   float: left;
-  margin-left: 76px !important;
+  margin-left: 10% !important;
 }
 #navi{
   height: 60px;
-  width: 1200px;
+  width: 100%;
   float: left;
   background-color: rgb(31, 31, 31);
   padding: 0 !important;
 }
 .navibtn{
   float: left;
-  width: 360px;
+  width: 40%;
   height: 60px;
-  margin: 20px !important;
+  margin: 5% !important;
   margin-top: 0px !important;
   margin-bottom: 0px !important;
   color: rgb(211, 211, 211) !important;
@@ -40,7 +40,16 @@ body{
   background-color: rgb(109, 70, 70) !important;
 }
 .rivi{
-  width: 1200px;
+  overflow: hidden;
+  width: 50% !important;
+  height: 90px !important;
+  margin-top: 20px;
+  float: left;
+  padding: 0 !important;
+}
+.wide-row{
+  overflow: hidden;
+  width: 100% !important;
   height: 90px !important;
   margin-top: 20px;
   float: left;
@@ -50,10 +59,15 @@ button{
   color: rgb(28, 187, 255) !important;
   background-color: rgb(87, 87, 87) !important;
   padding: 30px !important;
+  float: left;
 }
 .taulukko{
   background-color: rgb(205, 205, 205) !important;
 }
 .tablebtn{
   padding: 10px !important;
+}
+.tekstikentta{
+  width: 90%;
+  margin-left: 5% !important;
 }

@@ -3,7 +3,7 @@ import Container from '@mui/material/Container'
 import Box from '@mui/material/Box';
 import { LineChart } from '@mui/x-charts/LineChart';
 import Button from '@mui/material/Button';
-import { /* Backdrop, CircularProgress, */ FormControl, InputLabel, MenuItem, Select, /* Table, TableBody, TableCell, TableHead, TableRow, */ TextField} from '@mui/material';
+import { /* Backdrop, CircularProgress, */ FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch, /* Table, TableBody, TableCell, TableHead, TableRow, */ TextField} from '@mui/material';
 
 interface UserData{
   name : string,
@@ -19,6 +19,7 @@ interface UserData{
 function App() {
   const [u1, setU1] = useState<string>("");
   const [u2, setU2] = useState<string>("");
+  const [usernameVisible, setUsernameVisible] = useState<boolean>(true);
   const [variant, setVariant] = useState<string>("");
   const [variant2, setVariant2] = useState<string>("");
   const [dataPisteet, setDataPisteet] = useState<any>([]);
@@ -49,6 +50,11 @@ function App() {
   const [u2Data, setU2Data] = useState<UserData>({name: "", data: [], variant:-1})
   const color : string = '#ff0000'
   const connectNulls : boolean = true;
+
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUsernameVisible(event.target.checked);
+  };
 
   const createList=(points:any)=>{
     if(points.length > 0){
@@ -340,46 +346,49 @@ function App() {
   return (
     <>
     <Container id='navi'>
-      <Button onClick={()=>vaihdaNakyma(0)} sx={styles[0]} className='navibtn'>Haku</Button>
-      <Button onClick={()=>vaihdaNakyma(1)} sx={styles[1]} className='navibtn'>Taulukko</Button>
+      <Button onClick={()=>vaihdaNakyma(0)} sx={styles[0]} className='navibtn'>Search</Button>
+      <Button onClick={()=>vaihdaNakyma(1)} sx={styles[1]} className='navibtn' disabled={u1.length + u2.length == 0}>Chart</Button>
       {/* <Button onClick={()=>vaihdaNakyma(2)} sx={styles[2]} className='navibtn'>Historia</Button> */}
     </Container>
     {nakyma == 0 &&
       <Container className='big-box'>
         <Container className="rivi">
           <TextField
-            label="Käyttäjänimi"
+            label="Username"
             variant='filled'
             className='tekstikentta'
             sx={{backgroundColor:"white",  marginRight:"40px"}}
             onChange={(event)=>setU1(String(event.target.value))}
             />
+
+        </Container>
+        <Container className="rivi">
           {vertailu &&
             <TextField
-              label="Käyttäjänimi"
+              label="Username"
               variant='filled'
               className='tekstikentta'
               sx={{backgroundColor:"white"}}
               onChange={(event)=>setU2(String(event.target.value))}
               />
           }
-            {!vertailu &&
+          {!vertailu &&
             <Button
               sx={{marginLeft:"40px", marginRight:"40px", height:"56px"}}
               onClick={()=>{setVertailu(!vertailu)}}
             >
-              Vertaa pelaajia
-          </Button>
-            }
+              Compare players
+            </Button>
+          }
         </Container>
         <Container className="rivi">
-          <FormControl variant="filled" sx={{backgroundColor:"white", width:"217px"}} > 
+          <FormControl variant="filled" sx={{backgroundColor:"white", width: "90%",marginLeft: "5% !important"}} > 
             <InputLabel>Variant</InputLabel>
             <Select
               onChange={(event:any)=>{setVariant(String(event.target.value))}}
               value={variant}
             >
-              <MenuItem value={''}>Valitse</MenuItem>
+              <MenuItem value={''}>Choose variant</MenuItem>
               <MenuItem value={'UltraBullet'}>UltraBullet</MenuItem>
               <MenuItem value={'Bullet'}>Bullet</MenuItem>
               <MenuItem value={'Blitz'}>Blitz</MenuItem>
@@ -398,8 +407,10 @@ function App() {
 
             </Select>
           </FormControl>
-      {vertailu &&
-            <FormControl variant="filled" sx={{backgroundColor:"white", width:"217px", marginLeft:"40px"}} > 
+        </Container>
+        <Container className="rivi">
+          {vertailu &&
+            <FormControl variant="filled" sx={{backgroundColor:"white", width: "90%",marginLeft: "5% !important"}} > 
               <InputLabel>Variant</InputLabel>
               <Select
                 onChange={(event:any)=>{setVariant2(String(event.target.value))}}
@@ -422,12 +433,13 @@ function App() {
               </Select>
             </FormControl>
             }
-          </Container>
-          <Container className="rivi">
-            <Button onClick={()=>{haeTiedot()}}>Hae</Button>
-          </Container>
         </Container>
-      }
+        <Container className="wide-row">
+          <FormControlLabel sx={{float:"left"}} control={<Switch onChange={handleChange} defaultChecked />} label="Show username" labelPlacement='bottom' />
+          <Button onClick={()=>{haeTiedot()}}>Search</Button>
+        </Container>
+      </Container>
+    }
     {nakyma == 1 &&
         <Container className='big-box'>
             <Container
@@ -436,8 +448,8 @@ function App() {
               <Box sx={{ width: '100%', height: 300}}>
                     <LineChart
                       series={[
-                        { data: dataPisteet, label: `${u1} - ${haeVariantti(u1Data.variant)}`, connectNulls, showMark:laskeArvot(u1Data.data) == 1},
-                        { data: dataPisteet2, label: `${u2} - ${haeVariantti(u2Data.variant)}`, connectNulls, color, showMark:laskeArvot(u2Data.data) == 1},
+                        { data: dataPisteet, label: `${(usernameVisible ? u1 + " - " : "")}${haeVariantti(u1Data.variant)}`, connectNulls, showMark:laskeArvot(u1Data.data) == 1},
+                        { data: dataPisteet2, label: `${(usernameVisible ? u2 + " - " : "")}${haeVariantti(u2Data.variant)}`, connectNulls, color, showMark:laskeArvot(u2Data.data) == 1},
                       ]}
                       yAxis={[{ 
                         min: -100+Number(Math.min(pieninArvo(u1Data.data), pieninArvo(u2Data.data))),
