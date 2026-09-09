@@ -42,7 +42,7 @@ function App() {
     haettu : false,
     virhe : "",
   })
-  const [haettu2, setHaettu2] = useState<number>(0);
+  // const [haettu2, setHaettu2] = useState<number>(0);
   const [vertailu, setVertailu] = useState<boolean>(false);
 /*   const [aikajarjestys, setAikajarjestys] = useState<boolean>(false); */
   const [styles, setStyles] = useState<any>([
