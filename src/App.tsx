@@ -3,7 +3,7 @@ import Container from '@mui/material/Container'
 import Box from '@mui/material/Box';
 import { LineChart } from '@mui/x-charts/LineChart';
 import Button from '@mui/material/Button';
-import { /* Backdrop, CircularProgress, */ FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch, /* Table, TableBody, TableCell, TableHead, TableRow, */ TextField} from '@mui/material';
+import { /* Backdrop, CircularProgress, */ Alert, Backdrop, CircularProgress, Dialog, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch, /* Table, TableBody, TableCell, TableHead, TableRow, */ TextField, Typography} from '@mui/material';
 
 interface UserData{
   name : string,
@@ -11,21 +11,23 @@ interface UserData{
   variant: number
 }
 
-/* interface ApiData{
-  haut : any[],
-  haettu : boolean
-} */
+interface ApiData{
+  haettu : boolean,
+  virhe : string
+}
 
 function App() {
   const [u1, setU1] = useState<string>("");
   const [u2, setU2] = useState<string>("");
   const [usernameVisible, setUsernameVisible] = useState<boolean>(true);
+  const [showApiKeyDialog, setShowApiKeyDialog] = useState<boolean>(false);
   const [variant, setVariant] = useState<string>("");
   const [variant2, setVariant2] = useState<string>("");
   const [dataPisteet, setDataPisteet] = useState<any>([]);
   const [dataPisteet2, setDataPisteet2] = useState<any>([]);
-  const [xLabels, setXLabels] = useState<any>([])
-  const [aikavali, setAikavali] = useState<any>([])
+  const [xLabels, setXLabels] = useState<any>([]);
+  const [aikavali, setAikavali] = useState<any>([]);
+  const [apiKey, setApiKey] = useState<string>("");
 /*   const [apiData, setApiData]= useState<ApiData>({
     haut: [{}],
     haettu: true,
@@ -36,6 +38,10 @@ function App() {
   const msDay = 86400000; */
 
   const [haettu, setHaettu] = useState<number>(0);
+  const [apiData, setApiData] = useState<ApiData>({
+    haettu : false,
+    virhe : "",
+  })
   const [haettu2, setHaettu2] = useState<number>(0);
   const [vertailu, setVertailu] = useState<boolean>(false);
 /*   const [aikajarjestys, setAikajarjestys] = useState<boolean>(false); */
@@ -55,7 +61,9 @@ function App() {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUsernameVisible(event.target.checked);
   };
-
+  const saveApiKey=()=>{
+    localStorage.setItem("apiKey", apiKey);
+  }
   const createList=(points:any)=>{
     if(points.length > 0){
         let now = new Date()
@@ -77,7 +85,7 @@ function App() {
     }
     return [];
 }
-  const findVariant=(data:any)=>{
+  const findVariant=async(data:any)=>{
       let variants = []
       for(let i = 0; i < 14; i++){
           variants[i] = data[i].points.length
@@ -109,19 +117,13 @@ function App() {
         }
       setNakyma(1)
       }
-    else{
-      alert("käyttäjää ei löydy")
-    }}
+    }
     if(nakyma == 0){
       setU1("")
       setU2("")
       setU1Data({name: "", data: [], variant:-1})
       setU2Data({name: "", data: [], variant:-1})
       setNakyma(0)
-    }
-    if(nakyma == 2){
-      setHaettu2(haettu2+1)
-      setNakyma(2)
     }
   }
   const luoOtsikot=async()=>{
@@ -138,7 +140,7 @@ function App() {
   }
   const apiKutsu=async(nimi : string, variant : string)=>{
     if(nimi.length > 0){
-      const yhteys = await fetch(`https://lichess.org/api/user/${nimi}/rating-history`, {method : "GET"});
+      const yhteys = await fetch(`https://lichess.org/api/user/${nimi}/rating-history`, {method : "GET", headers: {Authorization: 'Bearer ' + apiKey}});
       try{
         if(yhteys.status === 200){
           let variantNumber : number;
@@ -178,25 +180,26 @@ function App() {
           }
           if(variantNumber == -1){
               let fullData : any = await yhteys.json();
-              let list = createList((fullData)[findVariant(fullData)].points)
-              let variantNum : number = findVariant(fullData)
+              let list = createList((await fullData)[await findVariant(await fullData)].points)
+              let variantNum : number = await findVariant(await fullData)
               return {name:nimi, data:list, variant:variantNum}
           }
           else{
-              let data = createList((await yhteys.json())[variantNumber].points)
+              let data = createList(await (await yhteys.json())[variantNumber].points)
               return {name:nimi, data:data, variant:variantNumber}
           }
         }
         else {
-          alert("Virhe:" + yhteys.status)
+          setApiData({...apiData, virhe : "Connection to the server failed."})
         }}
       catch(e:any){
-        alert("Odottamaton virhe.")
+        setApiData({...apiData, virhe : `No cached version of ${u1}'s rating history was found. Use an API key.`})
       }
     }
     return {name:nimi, data:[], variant:-1}
   }
   const haeTiedot=async()=>{
+    setApiData({...apiData, haettu : true})
     setU1Data(await apiKutsu(u1, variant))
     setU2Data(await apiKutsu(u2, variant2))
     setHaettu(haettu+1)
@@ -290,8 +293,8 @@ function App() {
       }
     }catch(e:any){
     throw new Error
-  }} *//* 
-  const haeHistoria=async()=>{
+  }} */
+  /*  const haeHistoria=async()=>{
     setApiData({
       ...apiData,
       haettu : false,
@@ -306,8 +309,8 @@ function App() {
     }catch(e:any){
     throw new Error
   }
-  } *//* 
-  const poistaRivi=async(x:number)=>{
+  } */ 
+ /* const poistaRivi=async(x:number)=>{
     setHaettu2(haettu2+1)
     try{
         await fetch(`http://localhost:3000/api/history/${x}` , {
@@ -340,18 +343,37 @@ function App() {
   }, [nakyma]);
 
   useEffect(()=>{
-    if(u1.length > 0){vaihdaNakyma(1)}
+    if(u1.length > 0){
+      vaihdaNakyma(1)
+      setApiData({...apiData, haettu : false})
+    }
   }, [haettu])
 
+  useEffect(()=>{
+    if(apiKey.length == 0){
+      setApiKey(localStorage.getItem("apiKey") || "")
+    }
+  }, [])
   return (
     <>
+    <Dialog open={showApiKeyDialog} onClose={()=>setShowApiKeyDialog(false)}>
+      <Container sx={{width:"200px", height: "300px", overflow:"hidden"}}>
+        <Typography sx={{marginBottom:"20px"}}>Paste your Personal API access token here:</Typography>
+        <TextField onChange={(e)=>setApiKey(e.target.value)} sx={{float:"left", width:"150px", marginBottom:"20px"}}></TextField>
+        <Button onClick={()=>saveApiKey()} sx={{float:"left"}}>Submit</Button>
+      </Container>
+    </Dialog>
+    <Backdrop open={apiData.haettu}>
+      <CircularProgress></CircularProgress>
+    </Backdrop>
     <Container id='navi'>
       <Button onClick={()=>vaihdaNakyma(0)} sx={styles[0]} className='navibtn'>Search</Button>
-      <Button onClick={()=>vaihdaNakyma(1)} sx={styles[1]} className='navibtn' disabled={u1.length + u2.length == 0}>Chart</Button>
+      <Button onClick={()=>vaihdaNakyma(1)} sx={styles[1]} className='navibtn' disabled={u1Data.data.length == 0}>Chart</Button>
       {/* <Button onClick={()=>vaihdaNakyma(2)} sx={styles[2]} className='navibtn'>Historia</Button> */}
     </Container>
     {nakyma == 0 &&
       <Container className='big-box'>
+        {apiData.virhe.length > 0 && <Alert color='error'>{apiData.virhe}</Alert>}
         <Container className="rivi">
           <TextField
             label="Username"
@@ -436,7 +458,8 @@ function App() {
         </Container>
         <Container className="wide-row">
           <FormControlLabel sx={{float:"left"}} control={<Switch onChange={handleChange} defaultChecked />} label="Show username" labelPlacement='bottom' />
-          <Button onClick={()=>{haeTiedot()}}>Search</Button>
+          <Button disabled={u1.length == 0} onClick={()=>{haeTiedot()}}>Search</Button>
+          <Button onClick={()=>setShowApiKeyDialog(true)} style={{marginLeft:"30px"}}>Add API key</Button>
         </Container>
       </Container>
     }
