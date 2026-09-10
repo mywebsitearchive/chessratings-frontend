@@ -62,6 +62,7 @@ function App() {
     setUsernameVisible(event.target.checked);
   };
   const saveApiKey=()=>{
+    setShowApiKeyDialog(false);
     localStorage.setItem("apiKey", apiKey);
   }
   const createList=(points:any)=>{
@@ -352,14 +353,15 @@ function App() {
   useEffect(()=>{
     if(apiKey.length == 0){
       setApiKey(localStorage.getItem("apiKey") || "")
+      console.log("hi")
     }
   }, [])
   return (
     <>
-    <Dialog open={showApiKeyDialog} onClose={()=>setShowApiKeyDialog(false)}>
-      <Container sx={{width:"200px", height: "300px", overflow:"hidden"}}>
-        <Typography sx={{marginBottom:"20px"}}>Paste your Personal API access token here:</Typography>
-        <TextField onChange={(e)=>setApiKey(e.target.value)} sx={{float:"left", width:"150px", marginBottom:"20px"}}></TextField>
+    <Dialog sx={{overflow:'hidden'}} open={showApiKeyDialog} onClose={()=>setShowApiKeyDialog(false)}>
+      <Container sx={{padding: "30px"}}>
+        <Typography sx={{marginBottom:"20px"}}>Paste your <a target='_blank' href='https://lichess.org/account/oauth/token/create'>Personal API access token</a> here:</Typography>
+        <TextField onChange={(e)=>setApiKey(e.target.value)} sx={{float:"left", width:"150px", marginBottom:"20px", marginRight:"20px"}}></TextField>
         <Button onClick={()=>saveApiKey()} sx={{float:"left"}}>Submit</Button>
       </Container>
     </Dialog>
@@ -458,8 +460,8 @@ function App() {
         </Container>
         <Container className="wide-row">
           <FormControlLabel sx={{float:"left"}} control={<Switch onChange={handleChange} defaultChecked />} label="Show username" labelPlacement='bottom' />
-          <Button disabled={u1.length == 0} onClick={()=>{haeTiedot()}}>Search</Button>
-          <Button onClick={()=>setShowApiKeyDialog(true)} style={{marginLeft:"30px"}}>Add API key</Button>
+          <Button disabled={u1.length == 0} onClick={()=>{haeTiedot()}} sx={{marginBottom:"10px"}}>Search</Button>
+          <Button onClick={()=>setShowApiKeyDialog(true)} sx={{marginLeft:"10px"}}>Add API key</Button>
         </Container>
       </Container>
     }

@@ -6,10 +6,10 @@ body{
 }
 .big-box{
   background-color: rgb(67, 67, 67);
-  height: 40%;
   float: left;
   padding-top: 5%;
   padding-bottom: 5%;
+  overflow: hidden;
 }
 .chart{
   background-color: rgb(233, 233, 233);
@@ -50,7 +50,6 @@ body{
 .wide-row{
   overflow: hidden;
   width: 100% !important;
-  height: 90px !important;
   margin-top: 20px;
   float: left;
   padding: 0 !important;
