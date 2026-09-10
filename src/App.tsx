@@ -353,7 +353,6 @@ function App() {
   useEffect(()=>{
     if(apiKey.length == 0){
       setApiKey(localStorage.getItem("apiKey") || "")
-      console.log("hi")
     }
   }, [])
   return (
